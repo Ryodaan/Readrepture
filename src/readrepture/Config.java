@@ -17,7 +17,7 @@ public class Config {
      
     public static Connection configDB() throws SQLException {
         try {
-            String url = "jdbc:mysql://localhost:3306/";
+            String url = "jdbc:mysql://localhost:3306/rdrapture";
             String user = "root";
             String pass = "";
             

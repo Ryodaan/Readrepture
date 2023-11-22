@@ -4,13 +4,18 @@
  */
 package readrepture;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+
 /**
  *
  * @author USER
@@ -23,18 +28,95 @@ public class Transaksi extends javax.swing.JFrame {
     public Transaksi() {
         initComponents();
         tanggal();
-        DefaultTableModel ModelTbl = (DefaultTableModel) tabeldata.getModel();
+        Modeltbl = (DefaultTableModel) tabeldata.getModel();
     }
-    
-    public void tanggal(){
-    Date skrg=new Date();
-        DateFormat tgl=new SimpleDateFormat("dd/MM/yy");
-        String tanggal =tgl.format(skrg);
+
+    public void tanggal() {
+        Date skrg = new Date();
+        DateFormat tgl = new SimpleDateFormat("dd/MM/yy");
+        String tanggal = tgl.format(skrg);
         txttanggal.setText(tanggal);
-        String id="TRx"+tgl.format(skrg);
+        String id = "TRx" + tgl.format(skrg);
         txtnotransaksi.setText(id);
-        
-}
+
+    }
+    DefaultTableModel Modeltbl;
+    Object[] data = new Object[4];
+
+    public void tambah() {
+        data[0] = txtisbn.getText();
+        data[1] = txtjenisbuku.getText();
+        data[2] = txtjudulbuku.getText();
+        data[3] = txthargabuku.getText();
+        Modeltbl.addRow(data);
+        kosong();
+    }
+
+    public void kosong() {
+        txtisbn.setText("");
+        txtjenisbuku.setText("");
+        txtjudulbuku.setText("");
+        txthargabuku.setText("");
+        txtisbn.requestFocus();
+    }
+
+    public void tampil() {
+        String notrans = txtnotransaksi.getText();
+        labelno.setText(notrans);
+        String nama = txtkasir.getText();
+        labelnama.setText(nama);
+
+        String pinjam = txttanggal.getText();
+        labelpinjam.setText(pinjam);
+        String total = Integer.toString(totalHarga());
+        labeltotal.setText(total);
+    }
+
+    public void proses() throws SQLException {
+        int total = 0;
+
+        Connection conn = (Connection) Config.configDB();
+
+        try (conn) {
+            for (int i = 0; i < tabeldata.getRowCount(); i++) {
+                int harga = Integer.parseInt(tabeldata.getValueAt(i, 3).toString());
+                total += harga;
+
+                // Menyimpan data ke database
+                String query = "INSERT INTO transaksi (notransaksi, nama, tanggal, harga) VALUES (?, ?, ?, ?)";
+                try ( var preparedStatement = conn.prepareStatement(query)) {
+                    preparedStatement.setString(1, txtnotransaksi.getText());
+                    preparedStatement.setString(2, txtkasir.getText());
+                    preparedStatement.setString(3, txttanggal.getText());
+                    preparedStatement.setInt(4, harga);
+                    preparedStatement.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                String AA = tabeldata.getValueAt(i, 0) + "\t\t" + tabeldata.getValueAt(i, 1) + "\t\t" + tabeldata.getValueAt(i, 2) + "\t\t" + tabeldata.getValueAt(i, 3) + "\n";
+                TextArea.append(AA);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int totalHarga() {
+        int total = 0;
+
+        for (int i = 0; i < tabeldata.getRowCount(); i++) {
+            try {
+                int harga = Integer.parseInt(tabeldata.getValueAt(i, 3).toString());
+                total += harga;
+
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return total;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -90,6 +172,11 @@ public class Transaksi extends javax.swing.JFrame {
         jLabel25.setText("No Transaksi");
 
         txtnotransaksi.setEditable(false);
+        txtnotransaksi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtnotransaksiActionPerformed(evt);
+            }
+        });
 
         jLabel26.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel26.setForeground(new java.awt.Color(255, 255, 255));
@@ -107,12 +194,18 @@ public class Transaksi extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Toko Buku");
+        jLabel1.setText("ReadRapture");
 
         jButton4.setText("Proses");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
+            }
+        });
+
+        txtisbn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtisbnActionPerformed(evt);
             }
         });
 
@@ -294,7 +387,7 @@ public class Transaksi extends javax.swing.JFrame {
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("TOKO BUKU");
+        jLabel3.setText("ReadRapture");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -404,7 +497,13 @@ public class Transaksi extends javax.swing.JFrame {
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
-
+        jTabbedPane1.setSelectedIndex(1);
+        tampil();
+        try {
+            proses();
+        } catch (SQLException ex) {
+            Logger.getLogger(Transaksi.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void txtjenisbukuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtjenisbukuActionPerformed
@@ -413,8 +512,16 @@ public class Transaksi extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // TODO add your handling code here:
-
+        tambah();
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void txtnotransaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtnotransaksiActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtnotransaksiActionPerformed
+
+    private void txtisbnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtisbnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtisbnActionPerformed
 
     /**
      * @param args the command line arguments
@@ -489,5 +596,4 @@ public class Transaksi extends javax.swing.JFrame {
     private javax.swing.JTextField txttanggal;
     // End of variables declaration//GEN-END:variables
 
-    
 }

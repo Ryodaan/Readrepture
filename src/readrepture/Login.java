@@ -51,6 +51,8 @@ public class Login extends javax.swing.JFrame {
         inputPASSWORD = new javax.swing.JTextField();
         button_LOGIN = new javax.swing.JButton();
         button_EXIT = new javax.swing.JButton();
+        jLabel4 = new javax.swing.JLabel();
+        txtRegister = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -89,6 +91,16 @@ public class Login extends javax.swing.JFrame {
             }
         });
 
+        jLabel4.setText("Belum punya akun?");
+
+        txtRegister.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        txtRegister.setText("Register");
+        txtRegister.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtRegisterMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -113,9 +125,17 @@ public class Login extends javax.swing.JFrame {
                                 .addGap(85, 85, 85))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(27, 27, 27)
-                        .addComponent(button_LOGIN, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(button_EXIT, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(23, 23, 23)
+                                .addComponent(jLabel4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtRegister)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(button_LOGIN, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(button_EXIT, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(31, 31, 31))
         );
         layout.setVerticalGroup(
@@ -135,7 +155,11 @@ public class Login extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(button_LOGIN, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(button_EXIT, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(66, 66, 66))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtRegister))
+                .addGap(38, 38, 38))
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 365, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
@@ -162,21 +186,10 @@ public class Login extends javax.swing.JFrame {
     private void button_LOGINActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_LOGINActionPerformed
         // TODO add your handling code here:
         try {
-//            st = cn.createStatement();
-//            rs = st.executeQuery("SELECT * FROM user WHEREusername='" + inputUSERNAME.getText() + "' ANDpassword='" + inputPASSWORD.getPassword() + "'");
-//            if (rs.next()) {
-//                if (inputUSERNAME.getText().equals(rs.getString("username")) && inputPASSWORD.getPassword().equals(rs.getString("password"))) {
-//                    this.dispose();
-//                    JOptionPane.showMessageDialog(null, "Login Berhasil");
-//                    new Menu().setVisible(true);
-//                }
-//            } else {
-//                JOptionPane.showMessageDialog(null, "Username atau Password Salah");
-//            }
               String username = inputUSERNAME.getText();
               String password = inputPASSWORD.getText();
               
-              String sql = "SELECT * FROM user WHERE username = ? AND password = ?";
+              String sql = "SELECT * FROM kasir WHERE username = ? AND password = ?";
               
               try{
                   Connection conn = Config.configDB();
@@ -201,6 +214,13 @@ public class Login extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
     }//GEN-LAST:event_button_LOGINActionPerformed
+
+    private void txtRegisterMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtRegisterMouseClicked
+        // TODO add your handling code here:
+        Registrasi r = new Registrasi();
+        r.show();
+        this.hide();
+    }//GEN-LAST:event_txtRegisterMouseClicked
 
     /**
      * @param args the command line arguments
@@ -245,6 +265,8 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel password;
+    private javax.swing.JLabel txtRegister;
     // End of variables declaration//GEN-END:variables
 }
